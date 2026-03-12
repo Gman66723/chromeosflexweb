@@ -34,6 +34,8 @@ qemu-system-x86_64 \
     -display vnc=:0 \
     -device virtio-tablet-pci \
     -bios /usr/share/ovmf/OVMF.fd \
-    -drive file=chromeos.bin,format=raw,if=virtio \
+    -device usb-ehci,id=usb \
+    -device usb-storage,bus=usb.0,drive=chromeos_bin \
+    -drive file=chromeos.bin,format=raw,if=none,id=chromeos_bin \
     -drive file=internal_storage.qcow2,format=qcow2,if=virtio \
     -net nic,model=virtio -net user
