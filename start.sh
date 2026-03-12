@@ -1,30 +1,32 @@
 #!/bin/bash
 
-# 1. Download the latest ChromeOS Flex image if not present
-if [ ! -f "chromeos.bin" ]; then
-    echo "Downloading ChromeOS Flex..."
+# 1. Check if we already have the bin or the zip
+if [ -f "chromeos.bin" ]; then
+    echo "✅ Found chromeos.bin, skipping download."
+elif [ -f "flex.zip" ]; then
+    echo "📦 Found flex.zip, extracting..."
+    unzip flex.zip
+    mv *.bin chromeos.bin
+else
+    echo "🌐 No files found. Downloading ChromeOS Flex..."
     curl -L "https://dl.google.com/chromeos-flex/images/latest.bin.zip" -o flex.zip
     unzip flex.zip
     mv *.bin chromeos.bin
-    rm flex.zip
-    
-    # 2. Create a persistent disk (ChromeOS needs space to install)
-    qemu-img create -f qcow2 internal_storage.qcow2 32G
+    # Optional: Zip it back if you want to keep a compressed backup
+    # zip flex_backup.zip chromeos.bin 
 fi
 
-# 3. Start noVNC in the background
-websockify --web /usr/share/novnc/ 6080 localhost:5900 &
-
-# 4. Start QEMU
-# Note: ChromeOS Flex requires UEFI (OVMF) to boot correctly
-#!/bin/bash
-
-# ... (keep your download/unzip logic the same) ...
+# 2. Ensure internal storage exists
+if [ ! -f "internal_storage.qcow2" ]; then
+    echo "💾 Creating virtual hard drive..."
+    qemu-img create -f qcow2 internal_storage.qcow2 32G
+fi
 
 # 3. Start noVNC
 websockify --web /usr/share/novnc/ 6080 localhost:5900 &
 
-# 4. Start QEMU with compatible settings
+# 4. Start QEMU with the 'q35' and 'cpu max' fixes
+echo "🚀 Launching ChromeOS Flex..."
 qemu-system-x86_64 \
     -m 4G \
     -smp 2 \
