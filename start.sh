@@ -28,8 +28,9 @@ websockify --web /usr/share/novnc/ 6080 localhost:5900 &
 qemu-system-x86_64 \
     -m 4G \
     -smp 2 \
-    -cpu host \
+    -cpu max \
     -enable-kvm \
+    -machine q35 \
     -vga std \
     -display vnc=:0 \
     -device virtio-tablet-pci \
