@@ -17,14 +17,23 @@ websockify --web /usr/share/novnc/ 6080 localhost:5900 &
 
 # 4. Start QEMU
 # Note: ChromeOS Flex requires UEFI (OVMF) to boot correctly
+#!/bin/bash
+
+# ... (keep your download/unzip logic the same) ...
+
+# 3. Start noVNC
+websockify --web /usr/share/novnc/ 6080 localhost:5900 &
+
+# 4. Start QEMU with compatible settings
 qemu-system-x86_64 \
     -m 4G \
-    -smp 4 \
+    -smp 2 \
     -cpu host \
     -enable-kvm \
-    -device virtio-vga-gl -display vnc=:0 \
+    -vga std \
+    -display vnc=:0 \
+    -device virtio-tablet-pci \
     -bios /usr/share/ovmf/OVMF.fd \
     -drive file=chromeos.bin,format=raw,if=virtio \
     -drive file=internal_storage.qcow2,format=qcow2,if=virtio \
-    -device virtio-mouse-pci -device virtio-keyboard-pci \
     -net nic,model=virtio -net user
